@@ -9,5 +9,4 @@ public interface IUserService {
     int updateUser(User user);
     int deleteUser(long id);
 
-    void createTableUser();
 }

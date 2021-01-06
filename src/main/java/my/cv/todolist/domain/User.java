@@ -1,18 +1,40 @@
 package my.cv.todolist.domain;
 
-import org.springframework.stereotype.Component;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
-@Component
+@Entity
+@Table(name = "tl_user")
 public class User {
-    long id;
-    String email;
-    String password;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", unique = true, nullable = false)
+    private Long id;
 
-    public long getId() {
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<ToDo> toDoTask = new HashSet<>();
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -32,6 +54,30 @@ public class User {
         this.password = password;
     }
 
+    public Set<ToDo> getTodoTask() {
+        return toDoTask;
+    }
+
+    public void addTodo(ToDo toDo) {
+        addTodo(toDo, false);
+    }
+
+    public void addTodo(ToDo toDo, boolean isLinked) {
+        getTodoTask().add(toDo);
+        if (!isLinked)
+            toDo.setUser(this, true);
+    }
+
+    public void removeTodo(ToDo toDo) {
+        removeTodo(toDo, false);
+    }
+
+    public void removeTodo(ToDo toDo, boolean isLinked) {
+        getTodoTask().remove(toDo);
+        if (!isLinked)
+            toDo.removeUser(this, true);
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -39,5 +85,20 @@ public class User {
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return id.equals(user.id) &&
+                email.equals(user.email) &&
+                password.equals(user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password);
     }
 }
