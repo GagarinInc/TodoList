@@ -8,6 +8,7 @@ import my.cv.todolist.domain.ToDo;
 import my.cv.todolist.domain.User;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class Converter {
             toDoPojo.setId(toDo.getId());
             toDoPojo.setComment(toDo.getComment());
             toDoPojo.setExecuted(toDo.getExecuted());
-            toDoPojo.setFinishDate(toDo.getFinishDate());
+            toDoPojo.setFinishDate(new Date(toDo.getFinishDate().getTime()));
             toDoPojo.setExecutionDate(toDo.getExecutionDate());
             toDoPojo.setImportant(toDo.getImportant());
             toDoPojo.setInitDate(toDo.getInitDate());

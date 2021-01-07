@@ -148,6 +148,10 @@ public class ToDo {
         return tagSet;
     }
 
+    public void setTagSet(Set<Tag> tagSet) {
+        this.tagSet = tagSet;
+    }
+
     public void addTag(Tag tag) {
         addTag(tag, false);
     }
