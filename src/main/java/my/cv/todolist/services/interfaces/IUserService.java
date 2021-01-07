@@ -13,8 +13,8 @@ public interface IUserService {
 
     List<UserPojo> getAllUsers();
 
-    UserPojo updateUser(User user);
+    UserPojo updateUser(User user, Long id);
 
-    UserPojo deleteUser(long id);
+    String deleteUser(long id);
 
 }
