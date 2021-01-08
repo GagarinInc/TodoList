@@ -58,7 +58,7 @@ public class TodoService implements ITodoService {
     public ToDoPojo getTodo(Long todoId) {
         Optional<ToDo> todo = todoRepository.findById(todoId);
         if (todo.isPresent()) {
-            return (ToDoPojo) converter.toDoToPojo(new HashSet<>() {{
+            return (ToDoPojo) converter.toDoToPojo(new HashSet<ToDo>() {{
                 add(todo.get());
             }}).toArray()[0];
         } else {
