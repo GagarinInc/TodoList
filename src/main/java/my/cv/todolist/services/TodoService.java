@@ -1,5 +1,6 @@
 package my.cv.todolist.services;
 
+import my.cv.todolist.Exceptions.CustomEmptyDataException;
 import my.cv.todolist.domain.PlainObjects.ToDoPojo;
 import my.cv.todolist.domain.Tag;
 import my.cv.todolist.domain.ToDo;
@@ -48,7 +49,7 @@ public class TodoService implements ITodoService {
                 add(toDo);
             }}).toArray()[0];
         } else {
-            return new ToDoPojo();
+            throw new CustomEmptyDataException("Unable to get User with id='" + userId + "'");
         }
     }
 
@@ -56,8 +57,13 @@ public class TodoService implements ITodoService {
     @Transactional(readOnly = true)
     public ToDoPojo getTodo(Long todoId) {
         Optional<ToDo> todo = todoRepository.findById(todoId);
-        return todo.map(toDo -> (ToDoPojo) converter.toDoToPojo(new HashSet<ToDo>() {{
-        }})).orElse(new ToDoPojo());
+        if (todo.isPresent()) {
+            return (ToDoPojo) converter.toDoToPojo(new HashSet<>() {{
+                add(todo.get());
+            }}).toArray()[0];
+        } else {
+            throw new CustomEmptyDataException("Unable to get ToDo with id='" + todoId + "'");
+        }
     }
 
     @Override
@@ -68,7 +74,7 @@ public class TodoService implements ITodoService {
             todoRepository.save(toDo);
             return "Todo with id='" + toDo.getId() + "' was updated";
         } else {
-            return "Todo with id='" + toDo.getId() + "' doesn't exist";
+            throw new CustomEmptyDataException("Unable to update ToDo with id='" + todoId + "'");
         }
     }
 
@@ -81,7 +87,7 @@ public class TodoService implements ITodoService {
             todoRepository.deleteById(todoId);
             return "Todo with id='" + todoId + "' was deleted";
         } else {
-            return "Todo with id='" + todoId + "' doesn't exist";
+            throw new CustomEmptyDataException("Unable to delete ToDo with id='" + todoId + "'");
         }
     }
 
@@ -89,6 +95,11 @@ public class TodoService implements ITodoService {
     @Transactional(readOnly = true)
     public Set<ToDoPojo> getAllUserTodoes(Long userId) {
         Optional<User> user = userRepository.findById(userId);
-        return user.map(value -> converter.toDoToPojo(todoRepository.findAllByUser(value))).orElse(null);
+        if (user.isPresent()) {
+            Set<ToDo> toDos = todoRepository.findAllByUser(user.get());
+            return converter.toDoToPojo(toDos);
+        } else {
+            throw new CustomEmptyDataException("Unable to get User with id='" + userId + "'");
+        }
     }
 }
