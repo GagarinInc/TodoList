@@ -17,4 +17,6 @@ public interface IUserService {
 
     String deleteUser(long id);
 
+    UserPojo findUserByEmainAndPassword(User user);
+
 }

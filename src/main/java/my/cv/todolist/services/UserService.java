@@ -48,10 +48,10 @@ public class UserService implements IUserService {
     @Transactional(readOnly = true)
     public List<UserPojo> getAllUsers() {
         List<User> foundUser = (List<User>) userRepository.findAll();
-        if(!foundUser.isEmpty()){
+        if (!foundUser.isEmpty()) {
             return foundUser.stream().map(converter::userToPojo).collect(Collectors.toList());
-        }else{
-            throw new EmptyResultDataAccessException("at least ",1);
+        } else {
+            throw new EmptyResultDataAccessException("at least ", 1);
         }
     }
 
@@ -79,5 +79,15 @@ public class UserService implements IUserService {
         } else {
             throw new CustomEmptyDataException("Unable to delete User with id='" + id + "'");
         }
+    }
+
+    @Override
+    @Transactional
+    public UserPojo findUserByEmainAndPassword(User user) {
+        Optional<User> userOptional = userRepository.findUserByEmailAndPassword(user.getEmail(), user.getPassword());
+        if (userOptional.isPresent()) {
+            return converter.userToPojo(userOptional.get());
+        }
+        throw new CustomEmptyDataException("Wrong email='" + user.getEmail() + "' or password. Check email and password");
     }
 }

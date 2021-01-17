@@ -55,7 +55,7 @@ public class TodoService implements ITodoService {
 
     @Override
     @Transactional(readOnly = true)
-    public ToDoPojo getTodo(Long todoId) {
+    public ToDoPojo getTodo(Long todoId, Long userId) {
         Optional<ToDo> todo = todoRepository.findById(todoId);
         if (todo.isPresent()) {
             return (ToDoPojo) converter.toDoToPojo(new HashSet<ToDo>() {{
@@ -68,7 +68,7 @@ public class TodoService implements ITodoService {
 
     @Override
     @Transactional
-    public String updateTodo(ToDo toDo, Long todoId) {
+    public String updateTodo(ToDo toDo, Long todoId, Long userId) {
         Optional<ToDo> oldTodo = todoRepository.findById(todoId);
         if (oldTodo.isPresent()) {
             todoRepository.save(toDo);
@@ -80,7 +80,7 @@ public class TodoService implements ITodoService {
 
     @Override
     @Transactional
-    public String deleteTodo(Long todoId) {
+    public String deleteTodo(Long todoId, Long userId) {
         Optional<ToDo> todo = todoRepository.findById(todoId);
         if (todo.isPresent()) {
             new ArrayList<>(todo.get().getTags()).forEach(tag -> todoRepository.deleteById(tag.getId()));

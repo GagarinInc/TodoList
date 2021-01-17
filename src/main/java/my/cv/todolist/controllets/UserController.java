@@ -1,8 +1,11 @@
 package my.cv.todolist.controllets;
 
 import my.cv.todolist.Exceptions.CustomEmptyDataException;
+import my.cv.todolist.annatations.Authenticational;
 import my.cv.todolist.domain.PlainObjects.UserPojo;
 import my.cv.todolist.domain.User;
+import my.cv.todolist.security.TokenManager;
+import my.cv.todolist.security.TokenPayload;
 import my.cv.todolist.services.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,42 +22,58 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
 public class UserController {
     private final IUserService iUserService;
+    private final TokenManager tokenManager;
+    Long userId;
 
     @Autowired
-    public UserController(IUserService iUserService) {
+    public UserController(IUserService iUserService, TokenManager tokenManager) {
         this.iUserService = iUserService;
+        this.tokenManager = tokenManager;
     }
 
     @PostMapping(path = "/regitration")
-    public ResponseEntity<UserPojo> createUser(@RequestBody User user) {
+    public ResponseEntity<UserPojo> createUser(HttpServletRequest request, @RequestBody User user) {
         return new ResponseEntity<>(iUserService.createUser(user), HttpStatus.OK);
     }
 
-    @GetMapping(path = "/user/{id}")
-    public ResponseEntity<UserPojo> getUser(@PathVariable Long id) {
-        return new ResponseEntity<>(iUserService.getUser(id), HttpStatus.OK);
+    @PostMapping(path = "/authentication")
+    public ResponseEntity<String> authenticateUser(HttpServletRequest request, @RequestBody User user) {
+        UserPojo userAuthenticate = iUserService.findUserByEmainAndPassword(user);
+        String token = tokenManager.createToken(new TokenPayload(userAuthenticate.getId(), userAuthenticate.getPassword(), new Date()));
+        return new ResponseEntity<>(token, HttpStatus.OK);
     }
 
+    @Authenticational
+    @GetMapping(path = "/user/{userId}")
+    public ResponseEntity<UserPojo> getUser(HttpServletRequest request, @PathVariable Long userId) {
+        return new ResponseEntity<>(iUserService.getUser(userId), HttpStatus.OK);
+    }
+
+    @Authenticational
     @GetMapping(path = "/user/all")
-    public ResponseEntity<List<UserPojo>> getAllUser() {
+    public ResponseEntity<List<UserPojo>> getAllUser(HttpServletRequest request) {
         return new ResponseEntity<>(iUserService.getAllUsers(), HttpStatus.OK);
     }
 
-    @PutMapping(path = "/user/{id}")
-    public ResponseEntity<UserPojo> updateUser(@RequestBody User user, @PathVariable Long id) {
-        return new ResponseEntity<>(iUserService.updateUser(user, id), HttpStatus.OK);
+    @Authenticational
+    @PutMapping(path = "/user/{userId}")
+    public ResponseEntity<UserPojo> updateUser(HttpServletRequest request, @RequestBody User user, @PathVariable Long userId) {
+        return new ResponseEntity<>(iUserService.updateUser(user, userId), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/user/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        return new ResponseEntity<>(iUserService.deleteUser(id), HttpStatus.OK);
+    @Authenticational
+    @DeleteMapping(path = "/user/{userId}")
+    public ResponseEntity<String> deleteUser(HttpServletRequest request, @PathVariable Long userId) {
+        return new ResponseEntity<>(iUserService.deleteUser(userId), HttpStatus.OK);
     }
 
     /**

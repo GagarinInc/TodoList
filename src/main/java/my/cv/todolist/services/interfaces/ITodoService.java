@@ -8,11 +8,11 @@ import java.util.Set;
 public interface ITodoService {
     ToDoPojo createTodo(ToDo toDo, Long userId);
 
-    ToDoPojo getTodo(Long todoId);
+    ToDoPojo getTodo(Long todoId, Long userId);
 
-    String updateTodo(ToDo toDo, Long todoId);
+    String updateTodo(ToDo toDo, Long todoId, Long userId);
 
-    String deleteTodo(Long todoId);
+    String deleteTodo(Long todoId, Long userId);
 
     Set<ToDoPojo> getAllUserTodoes(Long userId);
 }
